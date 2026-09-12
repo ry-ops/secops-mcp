@@ -88,22 +88,34 @@ class SandflyClient:
 
     def search_findings(self, severity_min: int = 0, limit: int = 50) -> list[dict[str, Any]]:
         """Findings at or above a minimum severity (0-5, 5 highest) that
-        actually triggered (status != "pass") — the API filters on
-        severity server-side, but severity is a property of the check
-        itself, not of whether it fired, so status is filtered client-side
-        after fetching a wider page.
+        actually triggered.
+
+        A triggered finding has data.status == "alert" (not "pass") — this
+        is filtered server-side, not by fetching a page and checking
+        client-side: the overwhelming majority of results are routine
+        passing checks, so an unsorted/unfiltered page of any reasonable
+        size can easily come back with zero alerts even when hundreds
+        exist, if they happen to sit outside that page's slice.
         """
         body = {
-            "size": max(limit * 5, 100),
+            "size": min(limit, 200),
             "page": 1,
             "filter": {
-                "items": [{"field": "data.severity", "operator": ">=", "value": severity_min}],
+                "items": [
+                    {"field": "data.status", "operator": "equals", "value": "alert"},
+                    {"field": "data.severity", "operator": ">=", "value": severity_min},
+                ],
                 "logicOperator": "and",
             },
         }
-        data = self._post("/results", body)
-        rows = data.get("data") or []
-        findings = [r for r in rows if r.get("data", {}).get("status") != "pass"]
+        findings: list[dict[str, Any]] = []
+        while len(findings) < limit:
+            data = self._post("/results", body)
+            rows = data.get("data") or []
+            findings.extend(rows)
+            if not data.get("more_results") or not rows:
+                break
+            body["page"] += 1
         return findings[:limit]
 
     def close(self) -> None:
