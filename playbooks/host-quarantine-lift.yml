@@ -1,0 +1,9 @@
+---
+# TODO: reverse host-isolate.yml — restore normal VLAN/firewall placement.
+- name: Lift host quarantine
+  hosts: "{{ target_host }}"
+  gather_facts: false
+  tasks:
+    - name: placeholder
+      debug:
+        msg: "TODO: implement quarantine-lift steps"

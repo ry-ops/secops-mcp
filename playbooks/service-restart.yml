@@ -1,0 +1,10 @@
+---
+# TODO: restart a container/service flagged CRIT by Checkmk. Allowed to
+# run unattended per config/policies.yaml (checkmk.service_crit: auto).
+- name: Restart flagged service
+  hosts: "{{ target_host }}"
+  gather_facts: false
+  tasks:
+    - name: placeholder
+      debug:
+        msg: "TODO: implement service restart steps"

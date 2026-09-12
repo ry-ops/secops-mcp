@@ -1,0 +1,27 @@
+services:
+  secops-mcp:
+    build: .
+    image: secops-mcp:latest
+    container_name: secops-mcp
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    volumes:
+      - secops-state:/app/state
+    environment:
+      # Set these in the Portainer stack's environment editor, not here —
+      # this file goes to a public-readable git history even in a private
+      # repo's clone list, keep secrets out of it. See .env.example for the
+      # full list of names Portainer needs to define.
+      - WAZUH_API_URL
+      - WAZUH_API_USER
+      - WAZUH_API_PASSWORD
+      - SANDFLY_API_URL
+      - SANDFLY_API_TOKEN
+      - CHECKMK_API_URL
+      - CHECKMK_API_USER
+      - CHECKMK_API_SECRET
+      - SLACK_WEBHOOK_URL
+
+volumes:
+  secops-state:

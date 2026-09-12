@@ -1,0 +1,14 @@
+# Hosts/VMs this server is allowed to act on. Anything not listed here is
+# read-only (alerts can be seen and correlated, but no remediation tool
+# will target it).
+
+hosts:
+  - name: vm104-security
+    address: 10.88.140.169
+    proxmox_vmid: 104
+    role: security-stack       # Wazuh + Sandfly host
+
+  - name: vm108-docker
+    address: 10.88.140.133
+    proxmox_vmid: 108
+    role: docker-host           # Portainer, monitoring stack, this service

@@ -1,0 +1,16 @@
+---
+# TODO: quarantine a compromised host. Likely approach: move the host's
+# UniFi client to an isolated VLAN/firewall group (via the unifi-network
+# API) rather than touching the host itself, since a compromised host's
+# own network stack can't be trusted to enforce isolation.
+#
+# Invoked by secops_mcp.tools.ansible.host_isolate, which requires the
+# caller to pass confirm="CONFIRM_HOST_ISOLATE" (see config/policies.yaml:
+# always_confirm).
+- name: Isolate compromised host
+  hosts: "{{ target_host }}"
+  gather_facts: false
+  tasks:
+    - name: placeholder
+      debug:
+        msg: "TODO: implement isolation steps"

@@ -1,0 +1,23 @@
+# Per alert-type/severity policy: whether a remediation tool may run
+# unattended (auto) or must wait for a human to supply the CONFIRM_ token
+# (confirm). Anything not listed here defaults to `confirm`.
+
+wazuh:
+  # rule.level thresholds, per Wazuh's own severity scale (0-15)
+  level_12_plus: confirm      # e.g. multiple auth failures, rootkit indicators
+  level_7_to_11: confirm
+  level_below_7: auto         # informational only, no remediation tool runs
+
+sandfly:
+  rootkit_detected: confirm
+  suspicious_process: confirm
+  ssh_key_anomaly: confirm
+
+checkmk:
+  service_crit: auto          # e.g. auto-restart a crashed container
+  host_down: confirm          # could be legitimate maintenance, don't guess
+
+# Destructive tools always require confirm regardless of the above.
+always_confirm:
+  - host_isolate
+  - credential_rotate

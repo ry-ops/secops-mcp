@@ -1,0 +1,15 @@
+# Non-secret connection config for each alert source. Credentials/URLs
+# with secrets live in .env (see .env.example), referenced here by name
+# only for documentation.
+
+wazuh:
+  poll_interval_seconds: 60
+  env_prefix: WAZUH_
+
+sandfly:
+  poll_interval_seconds: 300
+  env_prefix: SANDFLY_
+
+checkmk:
+  poll_interval_seconds: 60
+  env_prefix: CHECKMK_

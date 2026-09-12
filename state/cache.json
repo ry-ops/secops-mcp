@@ -1,0 +1,5 @@
+{
+  "wazuh": { "last_alert_id": null, "last_sync": null },
+  "sandfly": { "last_finding_id": null, "last_sync": null },
+  "checkmk": { "last_sync": null }
+}
