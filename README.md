@@ -65,13 +65,24 @@ one split across ad-hoc MCP calls and playbook runs.
 
 ## Status
 
-Repo layout scaffolded. Not yet implemented:
-- Wazuh / Sandfly / Checkmk API clients (`src/secops_mcp/tools/*.py`)
-- Ansible execution wrapper (`tools/ansible.py`)
-- Actual playbooks in `playbooks/`
+Deployed as a Portainer git-stack on VM108 (see `docker-compose.yml`).
+
+Implemented and live-tested:
+- Wazuh client (`clients/wazuh.py`) — manager API + indexer, real alerts
+- Sandfly client (`clients/sandfly.py`) — real findings (currently none active)
+- Checkmk client (`clients/checkmk.py`) — real host/service status
 - Policy engine (`src/secops_mcp/permissions.py`)
 
-## Quick start (once implemented)
+Not yet implemented:
+- Real `ansible-runner` execution (`tools/ansible.py` — dry-run only)
+- Actual playbook logic in `playbooks/*.yml` (all TODO stubs)
+
+`runbooks/` holds human-readable triage docs for specific recurring alert
+patterns (e.g. a given Wazuh rule id firing on a given service) — a lookup
+layer above the machine-executed `playbooks/`, until `tools/incidents.py`
+grows a way to match an incoming alert against one automatically.
+
+## Quick start
 
 ```bash
 uv sync
