@@ -1,15 +1,33 @@
-"""Wazuh API client + tools. Read-only.
+"""Wazuh tools. Read-only.
 
-Configuration (environment variables, see .env.example):
-    WAZUH_API_URL, WAZUH_API_USER, WAZUH_API_PASSWORD
-
-TODO: implement WazuhClient (auth is a JWT fetched from /security/user/authenticate,
-then Bearer on subsequent calls; token expires ~15min, needs refresh).
+Configuration (see .env.example):
+    WAZUH_API_URL/USER/PASSWORD          manager API (55000): agents, RBAC
+    WAZUH_INDEXER_URL/USER/PASSWORD      indexer/OpenSearch (9200): alerts
 """
 
 from __future__ import annotations
 
+import json
+
+from secops_mcp.clients.wazuh import WazuhIndexerClient, WazuhManagerClient
 from secops_mcp.server import mcp
+
+_manager: WazuhManagerClient | None = None
+_indexer: WazuhIndexerClient | None = None
+
+
+def _mgr() -> WazuhManagerClient:
+    global _manager
+    if _manager is None:
+        _manager = WazuhManagerClient.from_env()
+    return _manager
+
+
+def _idx() -> WazuhIndexerClient:
+    global _indexer
+    if _indexer is None:
+        _indexer = WazuhIndexerClient.from_env()
+    return _indexer
 
 
 @mcp.tool()
@@ -20,7 +38,8 @@ def wazuh_list_alerts(level_min: int = 0, limit: int = 50) -> str:
         level_min: Minimum Wazuh rule level (0-15 scale).
         limit: Maximum alerts to return.
     """
-    raise NotImplementedError("wazuh_list_alerts: WazuhClient not yet implemented")
+    alerts = _idx().search_alerts(level_min=level_min, limit=limit)
+    return json.dumps(alerts, indent=2, default=str)
 
 
 @mcp.tool()
@@ -28,6 +47,10 @@ def wazuh_agent_status(agent_id: str | None = None) -> str:
     """Connection/health status for one Wazuh agent, or all agents if omitted.
 
     Args:
-        agent_id: Wazuh agent id. Omit for all agents.
+        agent_id: Wazuh agent id (e.g. "001"). Omit for all agents.
     """
-    raise NotImplementedError("wazuh_agent_status: WazuhClient not yet implemented")
+    if agent_id:
+        data = _mgr().get("/agents", params={"agents_list": agent_id})
+    else:
+        data = _mgr().get("/agents")
+    return json.dumps(data, indent=2, default=str)
