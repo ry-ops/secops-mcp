@@ -1,5 +1,13 @@
 # Runbook: Wazuh rule 40704 — "Systemd: Service exited due to a failure"
 
+**Status:** the case study below (`snap.firmware-updater.firmware-notifier.service`
+on `ubuntu`/10.88.145.178) is applied — local rule `100010` is live in
+`local_rules.xml` on the manager as of 2026-09-13, verified via the
+dashboard's Ruleset Test (matches to id 100010/level 0, no alert generated).
+Classified as case 1 (headless host) without SSH-level confirmation of the
+journal line beyond what Wazuh itself captured — revisit if this host later
+turns out to need working firmware notifications.
+
 **Trigger:** Wazuh rule id `40704`, level 5, group `systemd`. Fires on any
 `systemd[N]: <unit>: Main process exited, code=exited, status=<N>/FAILURE`
 line ingested from journald. This is a broad rule — it catches *every*
@@ -82,25 +90,36 @@ check for AppArmor denials against the snap.
 ## Tune Wazuh once you've classified it
 
 Scope suppression to the specific unit + agent, not the whole rule — this
-keeps 40704 alerting on every other service failure fleet-wide:
+keeps 40704 alerting on every other service failure fleet-wide. Also scope
+by `<hostname>` (the agent name), not just the unit name, in case another
+agent runs the same snap for a reason that isn't benign there:
 
 ```xml
 <!-- local_rules.xml on the Wazuh manager -->
-<rule id="100704" level="0">
-  <if_sid>40704</if_sid>
-  <match>snap.firmware-updater.firmware-notifier.service</match>
-  <description>Suppressed: firmware-notifier fails on headless host (benign)</description>
-</rule>
+<group name="local,systemd,">
+  <rule id="100010" level="0">
+    <if_sid>40704</if_sid>
+    <hostname>ubuntu</hostname>
+    <match>snap.firmware-updater.firmware-notifier.service</match>
+    <description>Suppressed: firmware-notifier fails on headless host (benign)</description>
+  </rule>
+</group>
 ```
 
 `level="0"` means evaluated but not alerted. Use `level="1"` or `2` instead
 if you want it to still show up in searches/dashboards but drop below your
 alerting threshold.
 
-**This is a live change to the Wazuh manager's ruleset** — apply it by hand
-via the manager, don't have secops-mcp push it automatically; nothing here
-wires that up yet (see `src/secops_mcp/tools/ansible.py`'s TODO on real
-execution).
+**This is a live change to the Wazuh manager's ruleset** — applied via the
+Wazuh dashboard's Rules → Custom rules → `local_rules.xml` editor (Save,
+then Reload — a ruleset hot-reload, no manager restart/agent disruption),
+not via SSH into VM104 (off-limits, see memory `operate-via-mcp-only`) and
+not via secops-mcp itself (nothing wires that up yet — see
+`src/secops_mcp/tools/ansible.py`'s TODO on real execution). Validate any
+future edit the same way: the dashboard's "Ruleset Test" tool against the
+exact log line, with the session cleared first — it caches decode/rule
+state across tests in the same dialog, so a stale session can make an
+already-reloaded rule look like it isn't matching yet.
 
 ## Where this fits in secops-mcp's alert-handling flow
 
