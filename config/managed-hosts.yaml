@@ -7,8 +7,14 @@ hosts:
     address: 10.88.140.169
     proxmox_vmid: 104
     role: security-stack       # Wazuh + Sandfly host
+    # No wazuh_agent_name: this VM deliberately does not run wazuh-agent
+    # (it hosts the manager itself -- see memory vm104-security on why
+    # installing the agent here previously broke things). Any tool that
+    # needs Wazuh-sourced host state (e.g. package_remediate's kernel
+    # check) has no data to verify against and must refuse, not assume.
 
   - name: vm108-docker
     address: 10.88.140.133
     proxmox_vmid: 108
     role: docker-host           # Portainer, monitoring stack, this service
+    wazuh_agent_name: docker    # managed-hosts `name` != Wazuh agent.name

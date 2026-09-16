@@ -20,9 +20,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from secops_mcp.permissions import require_confirm, resolve_dry_run
+from secops_mcp.permissions import (
+    ProtectedResourceError,
+    check_not_protected,
+    require_confirm,
+    resolve_dry_run,
+)
 from secops_mcp.server import mcp
-from secops_mcp.state import ROOT, append_audit, is_managed_host
+from secops_mcp.state import ROOT, append_audit, is_managed_host, load_managed_hosts
 
 PLAYBOOK_DIR = ROOT / "playbooks"
 
@@ -32,6 +37,9 @@ def _execute_playbook(
 ) -> dict[str, Any]:
     if not is_managed_host(target_host):
         raise ValueError(f"{target_host!r} is not in config/managed-hosts.yaml")
+    # Hard block, checked before dry-run short-circuits below, so a dry-run
+    # preview also surfaces "this would be refused" rather than looking safe.
+    check_not_protected(playbook, target_host, *(extra_vars or {}).values())
     path = PLAYBOOK_DIR / playbook
     if not path.exists():
         raise FileNotFoundError(f"no such playbook: {playbook}")
@@ -145,6 +153,101 @@ def service_restart(target_host: str, service: str, dry_run: bool | None = None)
     )
     append_audit(
         "service_restart", {"target_host": target_host, "service": service}, dr, result
+    )
+    return str(result)
+
+
+def _refuse_if_running_kernel(target_host: str, package: str) -> None:
+    """Extra guard specific to kernel packages, on top of PROTECTED_RESOURCES:
+    refuse to remove a linux-image-* package if it's the kernel that host is
+    currently booted into. vuln_triage_kernel's "active_kernel" bucket is a
+    real-risk-needs-upgrade case, not a removal case -- removing a running
+    kernel leaves nothing to boot into. Only "stale_kernel" packages (an
+    older, not-currently-booted linux-image-*) are safe to remove.
+
+    Queries the same wazuh-states-vulnerabilities-* data vuln_triage_kernel
+    uses, scoped to target_host, so this stays correct if the host reboots
+    onto a different kernel between a triage run and this call.
+
+    Fails safe: if there's no way to positively verify this host's running
+    kernel (no wazuh_agent_name mapping in managed-hosts.yaml, or Wazuh has
+    no data for that agent -- e.g. vm104-security, which deliberately runs
+    no wazuh-agent), this refuses rather than assuming the package is safe
+    to remove. An empty result set must never read as "not the running
+    kernel" -- that was a real bug caught in testing (managed-hosts.yaml's
+    `name` doesn't match Wazuh's agent.name, so the naive lookup silently
+    found zero findings and let a running-kernel removal through).
+    """
+    if not package.startswith("linux-image-"):
+        return
+
+    host_entry = next(
+        (h for h in load_managed_hosts().get("hosts", [])
+         if target_host in (h.get("name"), h.get("address"))),
+        None,
+    )
+    agent_name = (host_entry or {}).get("wazuh_agent_name")
+    if not agent_name:
+        raise ProtectedResourceError(
+            f"refusing to remove {package!r} on {target_host!r}: no wazuh_agent_name "
+            "mapping for this host in config/managed-hosts.yaml, so its running "
+            "kernel can't be verified. Add the mapping (or verify manually) "
+            "before this package can be removed."
+        )
+
+    from secops_mcp.tools.vuln_triage import classify, get_indexer_client
+
+    findings = get_indexer_client().search_vulnerabilities(agent_name=agent_name, limit=5000)
+    if not findings:
+        raise ProtectedResourceError(
+            f"refusing to remove {package!r} on {target_host!r}: Wazuh has no "
+            f"vulnerability data at all for agent {agent_name!r}, so its running "
+            "kernel can't be verified. An empty result must never be read as "
+            "'safe to remove' -- fix the data gap before retrying."
+        )
+    active_packages = {
+        f["package"]["name"] for f in classify(findings)["active_kernel"]
+    }
+    if package in active_packages:
+        raise ProtectedResourceError(
+            f"refusing to remove {package!r} on {target_host!r}: this is the "
+            "kernel that host is currently running (per Wazuh's host.os.kernel), "
+            "not a stale package. Removing it would leave the host unable to "
+            "boot. If it genuinely needs replacing, that's a kernel upgrade + "
+            "reboot, not a package removal."
+        )
+
+
+@mcp.tool()
+def package_remediate(
+    target_host: str, package: str, action: str = "remove", dry_run: bool | None = None
+) -> str:
+    """Remediate a flagged package (playbooks/package-remediate.yml).
+
+    Built for vuln_triage_kernel's "stale_kernel" bucket: old linux-image-*
+    packages left behind by apt upgrades that aren't the running kernel, so
+    removing them is just cleanup, not risk reduction against live exposure.
+    Refuses (via PROTECTED_RESOURCES) to touch anything SSH/network/firewall/
+    sudo-related, and separately refuses to remove a linux-image-* package
+    that matches the host's actually-running kernel -- see
+    _refuse_if_running_kernel.
+
+    Args:
+        target_host: Name or address from config/managed-hosts.yaml.
+        package: Package name to act on (e.g. "linux-image-7.0.0-28-generic").
+        action: "remove" or "upgrade". Defaults to "remove".
+        dry_run: Defaults to True.
+    """
+    _refuse_if_running_kernel(target_host, package)
+    dr = resolve_dry_run("package_remediate", dry_run)
+    result = _execute_playbook(
+        "package-remediate.yml", target_host, dr, {"package": package, "action": action}
+    )
+    append_audit(
+        "package_remediate",
+        {"target_host": target_host, "package": package, "action": action},
+        dr,
+        result,
     )
     return str(result)
 

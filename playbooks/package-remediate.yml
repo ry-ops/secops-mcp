@@ -1,0 +1,14 @@
+---
+# TODO: remove or upgrade a flagged package. Called by package_remediate,
+# which has already refused (before this playbook is ever reached) any
+# package matching PROTECTED_RESOURCES or the host's currently-running
+# kernel -- see tools/ansible.py's _refuse_if_running_kernel. This playbook
+# itself should still not assume that safety net is infallible: keep it
+# scoped to exactly the named package, no wildcard/glob removal.
+- name: Remediate a flagged package
+  hosts: "{{ target_host }}"
+  gather_facts: false
+  tasks:
+    - name: placeholder
+      debug:
+        msg: "TODO: implement apt remove/upgrade for {{ package }} (action={{ action }})"

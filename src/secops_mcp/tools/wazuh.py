@@ -43,6 +43,21 @@ def wazuh_list_alerts(level_min: int = 0, limit: int = 50) -> str:
 
 
 @mcp.tool()
+def wazuh_list_vulnerabilities(agent_name: str | None = None, limit: int = 1000) -> str:
+    """Raw vulnerability-detector findings from the indexer. Prefer
+    vuln_triage_kernel (tools/vuln_triage.py) for kernel-package findings --
+    it separates active-kernel risk from stale-package noise using the same
+    data this returns.
+
+    Args:
+        agent_name: Restrict to one agent (e.g. "ubuntu"). Omit for all.
+        limit: Maximum findings to return.
+    """
+    findings = _idx().search_vulnerabilities(agent_name=agent_name, limit=limit)
+    return json.dumps(findings, indent=2, default=str)
+
+
+@mcp.tool()
 def wazuh_agent_status(agent_id: str | None = None) -> str:
     """Connection/health status for one Wazuh agent, or all agents if omitted.
 

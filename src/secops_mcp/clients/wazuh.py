@@ -129,5 +129,44 @@ class WazuhIndexerClient:
         hits = resp.json()["hits"]["hits"]
         return [h["_source"] for h in hits]
 
+    def search_vulnerabilities(
+        self, agent_name: str | None = None, limit: int = 1000
+    ) -> list[dict[str, Any]]:
+        """Vulnerability-detector findings from wazuh-states-vulnerabilities-*.
+
+        Each hit already carries host.os.kernel (the actually-running kernel
+        for that agent) alongside package.name/package.version — that's what
+        lets kernel-package triage happen without touching the host at all,
+        see tools/vuln_triage.py.
+
+        Paginates with search_after on _id since this index runs into the
+        thousands of hits; a single unpaged query would silently truncate at
+        whatever index.max_result_window is set to.
+        """
+        body: dict[str, Any] = {
+            "size": min(limit, 1000),
+            "sort": [{"_id": "asc"}],
+            "query": {"match_all": {}},
+        }
+        if agent_name:
+            body["query"] = {"term": {"agent.name": agent_name}}
+
+        findings: list[dict[str, Any]] = []
+        search_after: list[Any] | None = None
+        while len(findings) < limit:
+            if search_after is not None:
+                body["search_after"] = search_after
+            resp = self._http.post("/wazuh-states-vulnerabilities-*/_search", json=body)
+            if resp.status_code >= 400:
+                raise WazuhError(
+                    f"vulnerability search -> HTTP {resp.status_code}: {resp.text.strip()}"
+                )
+            hits = resp.json()["hits"]["hits"]
+            if not hits:
+                break
+            findings.extend(h["_source"] for h in hits)
+            search_after = hits[-1]["sort"]
+        return findings[:limit]
+
     def close(self) -> None:
         self._http.close()

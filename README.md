@@ -68,10 +68,19 @@ one split across ad-hoc MCP calls and playbook runs.
 Deployed as a Portainer git-stack on VM108 (see `docker-compose.yml`).
 
 Implemented and live-tested:
-- Wazuh client (`clients/wazuh.py`) — manager API + indexer, real alerts
+- Wazuh client (`clients/wazuh.py`) — manager API + indexer, real alerts and
+  vulnerability-detector findings (`wazuh-states-vulnerabilities-*`)
 - Sandfly client (`clients/sandfly.py`) — real findings (currently none active)
 - Checkmk client (`clients/checkmk.py`) — real host/service status
-- Policy engine (`src/secops_mcp/permissions.py`)
+- Policy engine (`src/secops_mcp/permissions.py`), including
+  `PROTECTED_RESOURCES` — a hard, non-bypassable block on any remediation
+  tool touching SSH/network/firewall/sudo config, checked before every
+  playbook run regardless of dry_run or confirm tokens
+- Kernel-vulnerability triage (`tools/vuln_triage.py`,
+  `runbooks/kernel-vulnerability-triage.md`) — separates real kernel exposure
+  from stale-package noise; `package_remediate` (`tools/ansible.py`) won't
+  remove a host's actually-running kernel, and fails safe (refuses) rather
+  than assuming safety when it can't verify a host's kernel state
 
 Not yet implemented:
 - Real `ansible-runner` execution (`tools/ansible.py` — dry-run only)

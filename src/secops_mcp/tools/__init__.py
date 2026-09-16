@@ -2,4 +2,4 @@
 functions against the shared server instance (see server.py).
 """
 
-from . import ansible, checkmk, incidents, notify, sandfly, wazuh  # noqa: F401
+from . import ansible, checkmk, incidents, notify, sandfly, vuln_triage, wazuh  # noqa: F401
