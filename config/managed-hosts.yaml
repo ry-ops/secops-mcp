@@ -18,3 +18,9 @@ hosts:
     proxmox_vmid: 108
     role: docker-host           # Portainer, monitoring stack, this service
     wazuh_agent_name: docker    # managed-hosts `name` != Wazuh agent.name
+
+  - name: vm103-ubuntu
+    address: 10.88.145.178
+    proxmox_vmid: 103
+    role: lab-vm                # general-purpose lab VM (Sandfly tag: lab-vm)
+    wazuh_agent_name: ubuntu    # managed-hosts `name` != Wazuh agent.name
