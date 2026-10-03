@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/banner.svg" alt="secops-mcp: Wazuh, Sandfly and Checkmk alerts into reviewable Ansible fixes" width="100%"></p>
+
 # SecOps
 
 MCP server that turns Wazuh, Sandfly, and Checkmk alerts into reviewable
@@ -100,3 +102,8 @@ uv run secops-mcp
 
 Add to Claude Desktop / Claude Code MCP config once the server entry point
 exists, same as the `proxmox` and `unifi-network` servers.
+
+<!-- org-footer -->
+---
+
+<p align="center"><sub>Part of <a href="https://github.com/ry-ops">ry-ops</a> · building the pipes between infrastructure, automation, and observability · built by <a href="https://github.com/ry-ops">ry-ops</a></sub></p>
