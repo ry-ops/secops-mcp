@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d">
+  <title id="t">secops-mcp: alerts into reviewable Ansible remediation</title>
+  <desc id="d">Alerts from Wazuh, Sandfly and Checkmk are triaged to separate real exposure from noise, then every remediation passes through guardrails — policy gate, dry-run by default, an explicit CONFIRM token, and a hard PROTECTED_RESOURCES block — before Ansible executes on VM108 and the action is appended to an audit log.</desc>
+  <defs><linearGradient id="title" x1="0" x2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset=".5" stop-color="#38bdf8"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs>
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill:#e8eef5; }
+    .muted { fill:#8795a8; } .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @keyframes s1 { 0%,3.00% { opacity:0 } 7.00%,27.00% { opacity:1 } 30.00%,100% { opacity:0 } } .s1 { animation:s1 10.0s infinite; }
+    @keyframes s2 { 0%,26.00% { opacity:0 } 30.00%,50.00% { opacity:1 } 53.00%,100% { opacity:0 } } .s2 { animation:s2 10.0s infinite; }
+    @keyframes s3 { 0%,49.00% { opacity:0 } 53.00%,73.00% { opacity:1 } 76.00%,100% { opacity:0 } } .s3 { animation:s3 10.0s infinite; }
+    @keyframes s4 { 0%,72.00% { opacity:0 } 76.00%,95.00% { opacity:1 } 98.00%,100% { opacity:0 } } .s4 { animation:s4 10.0s infinite; }
+    @keyframes trav { 0% { offset-distance:0%; opacity:0 } 8%{opacity:1} 92%{opacity:1} 100% { offset-distance:100%; opacity:0 } } .trav { animation: trav 3.2s linear infinite; offset-path: path('M300 150 L 560 150'); }
+    @media (prefers-reduced-motion: reduce) { * { animation:none !important; opacity:1 !important; } }
+  </style>
+  <rect width="960" height="400" rx="20" fill="#0c1118"/>
+  <text x="40" y="54" font-size="29" font-weight="800" style="fill:url(#title)">secops-mcp</text>
+  <text x="42" y="82" font-size="15" class="muted">Security alerts → reviewable Ansible remediation, with the guardrails in front, not behind.</text>
+
+  <!-- sources -->
+  <rect x="40" y="110" width="210" height="150" rx="12" fill="#121a24" stroke="#28333f"/>
+  <text x="58" y="134" font-size="11" font-weight="700" class="muted">ALERT SOURCES</text>
+  <g class="s1">
+  <rect x="58" y="146" width="174" height="30" rx="7" fill="#1a2430"/><text x="72" y="166" font-size="11.5">🛡 Wazuh · alerts + CVEs</text>
+  <rect x="58" y="182" width="174" height="30" rx="7" fill="#1a2430"/><text x="72" y="202" font-size="11.5">🪰 Sandfly · findings</text>
+  <rect x="58" y="218" width="174" height="30" rx="7" fill="#1a2430"/><text x="72" y="238" font-size="11.5">📈 Checkmk · problems</text>
+  </g>
+
+  <!-- the gate stack -->
+  <rect x="300" y="104" width="340" height="190" rx="12" fill="#0f1620" stroke="#2a3647"/>
+  <text x="320" y="128" font-size="11" font-weight="700" class="muted">EVERY REMEDIATION PASSES THROUGH</text>
+  <g class="s2">
+  <rect x="320" y="138" width="300" height="30" rx="7" fill="#15202a" stroke="#38bdf8" stroke-opacity=".4"/><text x="334" y="158" font-size="11.5">① triage — real exposure vs. stale noise</text>
+  <rect x="320" y="174" width="300" height="30" rx="7" fill="#15202a" stroke="#38bdf8" stroke-opacity=".4"/><text x="334" y="194" font-size="11.5">② policy gate — <tspan class="mono">policies.yaml</tspan></text>
+  <rect x="320" y="210" width="300" height="30" rx="7" fill="#1c1a12" stroke="#f5c542" stroke-opacity=".5"/><text x="334" y="230" font-size="11.5" style="fill:#f0d78a">③ dry-run by default · <tspan class="mono">CONFIRM_TOOL</tspan></text>
+  <rect x="320" y="246" width="300" height="34" rx="7" fill="#231317" stroke="#ff5c6e" stroke-opacity=".6"/><text x="334" y="263" font-size="11.5" style="fill:#ff9ba3">④ PROTECTED_RESOURCES — hard block</text><text x="334" y="276" font-size="9.5" class="muted">SSH / network / firewall / sudo · non-bypassable</text>
+  </g>
+  <circle class="trav" r="5" fill="#38bdf8"/>
+
+  <!-- execution + audit -->
+  <g class="s3"><rect x="690" y="110" width="230" height="84" rx="12" fill="#101f1b" stroke="#2dd4bf" stroke-opacity=".5"/>
+  <text x="710" y="136" font-size="13" font-weight="800" style="fill:#6fe3d2">Ansible on VM108</text>
+  <text x="710" y="156" font-size="10.5" class="muted">ansible-runner executes the playbook</text>
+  <text x="710" y="176" font-size="10" class="mono muted">host-isolate · package-remediate …</text></g>
+
+  <g class="s4"><rect x="690" y="206" width="230" height="74" rx="12" fill="#14121f" stroke="#818cf8" stroke-opacity=".5"/>
+  <text x="710" y="232" font-size="13" font-weight="800" style="fill:#aab2ff">append-only audit</text>
+  <text x="710" y="252" font-size="10.5" class="mono muted">state/audit.jsonl</text>
+  <text x="710" y="270" font-size="10" class="muted">every call — dry-run or real</text></g>
+
+  <text x="40" y="318" font-size="12.5" class="muted">Modeled on <tspan style="fill:#cdd6e6">git-steer</tspan>'s pattern — dry-run-by-default, explicit confirm, git-as-audit-log — but inverted:</text>
+  <text x="40" y="340" font-size="12.5" class="muted">a homelab runs 24/7, so <tspan style="fill:#cdd6e6">local is the compute plane</tspan>. Ansible on VM108 is what actually runs the fix.</text>
+  <text x="40" y="362" font-size="11" class="muted">Anything touching a VM or the network goes through a playbook → one consistent audit trail, not ad-hoc calls.</text>
+</svg>
