@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" width="960" height="400" role="img" aria-labelledby="t d">
+  <title id="t">secops-mcp tools</title>
+  <desc id="d">Twenty-one MCP tools: Wazuh, Sandfly and Checkmk reads; kernel vuln triage; eight Ansible remediation tools; incidents and audit; plus a Slack notify tool.</desc>
+  <defs><linearGradient id="title" x1="0" x2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#818cf8"/></linearGradient></defs>
+  <style>
+    text { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; fill:#e8eef5; }
+    .muted { fill:#8795a8; } .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    @keyframes g0 { 0%,2.50% { opacity:0; transform:translateY(8px) } 10.00%,100% { opacity:1; transform:translateY(0) } } .g0 { animation:g0 8.0s infinite; }
+    @keyframes g1 { 0%,5.25% { opacity:0; transform:translateY(8px) } 12.75%,100% { opacity:1; transform:translateY(0) } } .g1 { animation:g1 8.0s infinite; }
+    @keyframes g2 { 0%,8.00% { opacity:0; transform:translateY(8px) } 15.50%,100% { opacity:1; transform:translateY(0) } } .g2 { animation:g2 8.0s infinite; }
+    @keyframes g3 { 0%,10.75% { opacity:0; transform:translateY(8px) } 18.25%,100% { opacity:1; transform:translateY(0) } } .g3 { animation:g3 8.0s infinite; }
+    @keyframes g4 { 0%,13.50% { opacity:0; transform:translateY(8px) } 21.00%,100% { opacity:1; transform:translateY(0) } } .g4 { animation:g4 8.0s infinite; }
+    @keyframes g5 { 0%,16.25% { opacity:0; transform:translateY(8px) } 23.75%,100% { opacity:1; transform:translateY(0) } } .g5 { animation:g5 8.0s infinite; }
+    @keyframes nf { 0%,20.00% { opacity:0 } 27.50%,100% { opacity:1 } } .nf { animation:nf 8.0s infinite; }
+    @media (prefers-reduced-motion: reduce) { * { animation:none !important; opacity:1 !important; transform:none !important; } }
+  </style>
+  <rect width="960" height="400" rx="20" fill="#0c1118"/>
+  <text x="40" y="54" font-size="26" font-weight="800" style="fill:url(#title)">21 tools, read on the left, write behind gates</text>
+  <text x="42" y="80" font-size="14" class="muted">Reads are free; every write defaults to dry-run and logs to the audit trail.</text>
+  <g class="g0"><rect x="40" y="116" width="275" height="96" rx="11" fill="#111923" stroke="#38bdf8" stroke-opacity=".5"/>
+  <circle cx="58" cy="142" r="5" fill="#38bdf8"/>
+  <text x="72" y="147" font-size="14" font-weight="800">Wazuh · read</text>
+  <text x="299" y="147" text-anchor="end" font-size="15" font-weight="800" style="fill:#38bdf8">3</text>
+  <text x="56" y="170" font-size="10" class="mono muted"><tspan x="56" dy="0">list_alerts · list_vulnerabilities</tspan><tspan x="56" dy="14">agent_status</tspan></text></g><g class="g1"><rect x="333" y="116" width="275" height="96" rx="11" fill="#111923" stroke="#2dd4bf" stroke-opacity=".5"/>
+  <circle cx="351" cy="142" r="5" fill="#2dd4bf"/>
+  <text x="365" y="147" font-size="14" font-weight="800">Sandfly · read</text>
+  <text x="592" y="147" text-anchor="end" font-size="15" font-weight="800" style="fill:#2dd4bf">1</text>
+  <text x="349" y="170" font-size="10" class="mono muted"><tspan x="349" dy="0">sandfly_list_findings</tspan></text></g><g class="g2"><rect x="626" y="116" width="275" height="96" rx="11" fill="#111923" stroke="#22c55e" stroke-opacity=".5"/>
+  <circle cx="644" cy="142" r="5" fill="#22c55e"/>
+  <text x="658" y="147" font-size="14" font-weight="800">Checkmk · read</text>
+  <text x="885" y="147" text-anchor="end" font-size="15" font-weight="800" style="fill:#22c55e">2</text>
+  <text x="642" y="170" font-size="10" class="mono muted"><tspan x="642" dy="0">list_problems</tspan><tspan x="642" dy="14">host_status</tspan></text></g><g class="g3"><rect x="40" y="234" width="275" height="96" rx="11" fill="#111923" stroke="#f5c542" stroke-opacity=".5"/>
+  <circle cx="58" cy="260" r="5" fill="#f5c542"/>
+  <text x="72" y="265" font-size="14" font-weight="800">Triage</text>
+  <text x="299" y="265" text-anchor="end" font-size="15" font-weight="800" style="fill:#f5c542">1</text>
+  <text x="56" y="288" font-size="10" class="mono muted"><tspan x="56" dy="0">vuln_triage_kernel</tspan><tspan x="56" dy="14">(real exposure vs. noise)</tspan></text></g><g class="g4"><rect x="333" y="234" width="275" height="96" rx="11" fill="#111923" stroke="#ff7a4d" stroke-opacity=".5"/>
+  <circle cx="351" cy="260" r="5" fill="#ff7a4d"/>
+  <text x="365" y="265" font-size="14" font-weight="800">Ansible · remediate</text>
+  <text x="592" y="265" text-anchor="end" font-size="15" font-weight="800" style="fill:#ff7a4d">8</text>
+  <text x="349" y="288" font-size="10" class="mono muted"><tspan x="349" dy="0">list · run_playbook · job_status</tspan><tspan x="349" dy="14">host_isolate · quarantine_lift · cred_rotate</tspan><tspan x="349" dy="14">service_restart · package_remediate</tspan></text></g><g class="g5"><rect x="626" y="234" width="275" height="96" rx="11" fill="#111923" stroke="#818cf8" stroke-opacity=".5"/>
+  <circle cx="644" cy="260" r="5" fill="#818cf8"/>
+  <text x="658" y="265" font-size="14" font-weight="800">Incidents &amp; audit</text>
+  <text x="885" y="265" text-anchor="end" font-size="15" font-weight="800" style="fill:#818cf8">5</text>
+  <text x="642" y="288" font-size="10" class="mono muted"><tspan x="642" dy="0">incident_open · update · close</tspan><tspan x="642" dy="14">audit_log_query · steer_status</tspan></text></g>
+  <text class="nf muted" x="40" y="388" font-size="11">+ <tspan class="mono" style="fill:#cdd6e6">slack_notify</tspan> — push a summary or an approval request to Slack.</text>
+</svg>
